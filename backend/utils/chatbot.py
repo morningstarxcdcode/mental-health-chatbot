@@ -1,5 +1,13 @@
 import google.generativeai as genai
-from models.chat import ChatRequest # Assuming your Pydantic model is here
+import logging
+from models.chat import ChatRequest
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # The AI_INSTRUCTION_TEMPLATE remains the same.
 AI_INSTRUCTION_TEMPLATE = """
@@ -45,23 +53,33 @@ Respond as {{persona.name}} in your characteristic {{persona.tone}} style. Provi
 PREDEFINED_CHARACTERS = {
     "mochi": {
         "name": "Mochi",
-        "description": "A calm, patient, and deeply empathetic listener. Your purpose is to provide a safe space and validate the user's feelings without judgment.",
-        "tone": "Gentle, reassuring, and soft"
+        "description": (
+            "A calm, patient, and deeply empathetic listener. Your purpose is to provide "
+            "a safe space and validate the user's feelings without judgment. You listen more "
+            "than you speak, offering warmth and reassurance."
+        ),
+        "tone": "Gentle, reassuring, and soft",
+        "approach": "Active listening, validation, emotional support"
     },
-    "doraemon": {
-        "name": "Doraemon",
-        "description": "A helpful and optimistic robotic cat from the 22nd century. Your specialty is offering practical solutions and tools, which you refer to as 'gadgets' from your pocket.",
-        "tone": "Encouraging and friendly"
+    "sukun": {
+        "name": "Sukun",
+        "description": (
+            "A calm and grounding guide to help you find tranquility (Sukun) and peace in "
+            "the present moment through mindfulness. You teach breathing exercises, meditation "
+            "techniques, and help users stay present."
+        ),
+        "tone": "Soothing, wise, and centered",
+        "approach": "Mindfulness practices, breathing exercises, present-moment awareness"
     },
-    "shizuka": {
-        "name": "Shizuka",
-        "description": "A kind, gentle, and deeply empathetic friend. Your primary goal is to make the user feel heard, validated, and safe.",
-        "tone": "Soft and reassuring"
-    },
-    "shinchan": {
-        "name": "Shinchan",
-        "description": "A mischievous and silly 5-year-old boy with a unique and absurd way of looking at the world. Your goal is to use light-hearted, playful humor and unexpected questions to provide a gentle distraction from everyday stress.",
-        "tone": "Playful, humorous, and cheeky (but always kind-hearted)"
+    "diya": {
+        "name": "Diya",
+        "description": (
+            "A small lamp (Diya) of hope. Here to help you find a spark of light and celebrate "
+            "small wins, even on difficult days. You focus on gratitude, positive reframing, "
+            "and finding silver linings."
+        ),
+        "tone": "Hopeful, gentle, and optimistic",
+        "approach": "Gratitude practices, celebrating small wins, positive psychology"
     }
 }
 
@@ -78,7 +96,12 @@ async def generate_stream_response(api_key: str, chat_payload: ChatRequest):
             char_desc = persona_data.get("description") or "A helpful companion."
             char_tone = persona_data.get("tone") or "a neutral tone."
         else:
-            details = PREDEFINED_CHARACTERS.get(persona_id, PREDEFINED_CHARACTERS["mochi"])
+            # Normalize persona_id and default to mochi if not found
+            if persona_id not in PREDEFINED_CHARACTERS:
+                logger.warning(f"Unknown persona '{persona_id}', defaulting to 'mochi'")
+                persona_id = "mochi"
+            
+            details = PREDEFINED_CHARACTERS[persona_id]
             char_name = details.get("name") or "Mochi"
             char_desc = details.get("description") or "A caring companion."
             char_tone = details.get("tone") or "an empathetic tone."
@@ -87,18 +110,16 @@ async def generate_stream_response(api_key: str, chat_payload: ChatRequest):
         final_instruction = final_instruction.replace("{{persona.description}}", char_desc)
         final_instruction = final_instruction.replace("{{persona.tone}}", char_tone)
 
-        # --- THIS IS THE FINAL FIX ---
-        # We now access attributes using dot notation (msg.role) because 'msg' is an object.
         history_parts = []
         for msg in chat_payload.chatHistory:
-            # Check if msg and its attributes exist before accessing
             if msg and hasattr(msg, 'role') and hasattr(msg, 'parts') and msg.parts:
                 history_parts.append(f"{msg.role}: {msg.parts[0]}")
-        # ---------------------------
         
         conversation_context = "\n".join(history_parts)
         final_instruction = final_instruction.replace("{{chat_history}}", conversation_context)
         final_instruction = final_instruction.replace("{{user.message}}", chat_payload.message)
+
+        logger.info(f"Generating response for persona: {char_name}")
 
         # Generate content
         llm_model = genai.GenerativeModel('gemini-1.5-flash-latest')
@@ -109,6 +130,6 @@ async def generate_stream_response(api_key: str, chat_payload: ChatRequest):
                 yield chunk.text
 
     except Exception as e:
-        print(f"LLM streaming failed with exception: {e}")
+        logger.error(f"LLM streaming failed with exception: {e}", exc_info=True)
         yield "Apologies, I'm experiencing a technical difficulty. Could you try again?"
 

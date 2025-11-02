@@ -166,7 +166,25 @@ const Main = ({ onSent, currentPersona }) => {
 
 Main.propTypes = {
   onSent: PropTypes.func.isRequired,
-  currentPersona: PropTypes.object,
+  currentPersona: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    tone: PropTypes.string,
+    tag: PropTypes.string,
+    color: PropTypes.string,
+  }),
+};
+
+Main.defaultProps = {
+  currentPersona: {
+    id: "mochi",
+    name: "Mochi",
+    description: "A calm and empathetic listener",
+    tone: "Gentle and reassuring",
+    tag: "Empathetic Listener",
+    color: "#FFB6C1"
+  }
 };
 
 export default Main;

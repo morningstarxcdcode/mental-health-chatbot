@@ -2,6 +2,8 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { PersonaAppContext } from '../context/PersonaAppContext';
 import { AppContext } from '../context/AppContext';
+import { API_ENDPOINTS } from '../config/api';
+import { logger } from '../utils/logger';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Main from '../components/Main/Main';
 
@@ -23,13 +25,13 @@ function ChatPage() {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/personas");
-        if (!response.ok) throw new Error("Network response was not ok");
+        const response = await fetch(API_ENDPOINTS.PERSONAS);
+        if (!response.ok) throw new Error("Failed to fetch personas");
         const data = await response.json();
         const personasArray = Object.keys(data).map(id => ({ id, ...data[id] }));
         setPremadePersonas(personasArray);
       } catch (error) {
-        console.error("Failed to fetch personas:", error);
+        logger.error("Failed to fetch personas:", error);
       }
     };
     fetchPersonas();

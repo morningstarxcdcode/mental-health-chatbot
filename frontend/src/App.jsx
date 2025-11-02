@@ -9,6 +9,7 @@ import {
 } from "@clerk/clerk-react";
 
 import { PersonaProvider } from "./context/PersonaProvider.jsx";
+import ContextProvider from "./context/Context.jsx";
 
 import MoodCheck from "./pages/MoodCheck.jsx";
 import PersonaHub from "./pages/PersonaHub.jsx";
@@ -18,7 +19,8 @@ import PropTypes from "prop-types";
 
 function App() {
   return (
-        <PersonaProvider>
+        <ContextProvider>
+          <PersonaProvider>
           <header>
             {/* You can add a persistent header here if you like */}
             {/* For signed-in users, the UserButton will appear */}
@@ -68,6 +70,7 @@ function App() {
             />
           </Routes>
         </PersonaProvider>
+      </ContextProvider>
   );
 }
 

@@ -15,13 +15,19 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     print("Application startup...")
     
+    # Validate required environment variables
     mongo_uri = os.getenv("MONGO_URI")
     if not mongo_uri:
         raise ValueError("MONGO_URI environment variable not set!")
     
+    google_api_key = os.getenv("GOOGLE_API_KEY")
+    if not google_api_key:
+        raise ValueError("GOOGLE_API_KEY environment variable not set!")
+    
     app.mongodb_client = AsyncIOMotorClient(mongo_uri)
     app.database = app.mongodb_client["homh04_db"]
     print("🚀 Successfully connected to the MongoDB database.")
+    print("✅ GOOGLE_API_KEY validated successfully.")
     
     yield 
     

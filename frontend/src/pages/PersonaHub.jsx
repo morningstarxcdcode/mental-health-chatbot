@@ -2,6 +2,9 @@ import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { PersonaAppContext } from "../context/PersonaAppContext";
+import { API_ENDPOINTS } from "../config/api";
+import { logger } from "../utils/logger";
+import MyLoader from "../components/Loader/Loader";
 
 const PersonaCard = ({ to, name, tag, description, isRecommended, id }) => {
   const { expandedCardId, setExpandedCardId } = useContext(PersonaAppContext);
@@ -57,9 +60,9 @@ const PersonaHub = () => {
     setNewlyCreatedPersonaId,
   } = useContext(PersonaAppContext);
   // --- NEW STATE FOR FETCHED DATA ---
-  
   const [premadePersonas, setPremadePersonas] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   let recommendedPersonaId = null;
   let recommendationText = "";
@@ -99,10 +102,13 @@ const PersonaHub = () => {
   useEffect(() => {
     const fetchPersonas = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/personas");
+        setIsLoading(true);
+        const response = await fetch(API_ENDPOINTS.PERSONAS);
+        
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
 
         // Convert the object from the backend into an array we can map over
@@ -111,9 +117,9 @@ const PersonaHub = () => {
           ...data[id],
         }));
         setPremadePersonas(personasArray);
-      } catch (error) {
-        console.error("Failed to fetch personas:", error);
-        // You could set a default list here as a fallback
+      } catch (err) {
+        logger.error("Failed to fetch personas:", err);
+        setError(err.message);
       } finally {
         setIsLoading(false);
       }
@@ -124,8 +130,24 @@ const PersonaHub = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#27272A] text-white flex items-center justify-center">
-        Loading companions...
+      <div className="min-h-screen bg-[#27272A] text-white flex flex-col items-center justify-center">
+        <MyLoader />
+        <p className="mt-4 text-zinc-400 text-lg">Loading your companions...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#27272A] text-white flex flex-col items-center justify-center p-4">
+        <div className="text-red-400 text-xl mb-4">⚠️ Failed to load personas</div>
+        <p className="text-zinc-400 mb-6">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 bg-zinc-700 hover:bg-zinc-600 rounded-lg transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }
