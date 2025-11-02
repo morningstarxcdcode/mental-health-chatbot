@@ -16,17 +16,138 @@ body {
   display: none;
 }
 
-.result-data p {
-  line-height: 2;
+/* Enhanced Markdown Styling */
+.result-data {
+  line-height: 1.8;
   font-family: "chat";
   width: 90%;
+  color: #E4E4E7;
 }
-.result-data p b {
-   color: #a5fd0b;
+
+.result-data strong,
+.result-data b {
+  color: #a5fd0b;
+  font-weight: 600;
 }
-.result-data p h2 {
-   color:  #E4E4E7; 
+
+.result-data em,
+.result-data i {
+  color: #D4D4D8;
+  font-style: italic;
 }
+
+.result-data h1 {
+  color: #FAFAFA;
+  font-size: 2em;
+  font-weight: bold;
+  margin: 1.5em 0 0.75em;
+  border-bottom: 2px solid #3F3F46;
+  padding-bottom: 0.3em;
+}
+
+.result-data h2 {
+  color: #E4E4E7;
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 1.2em 0 0.6em;
+}
+
+.result-data h3 {
+  color: #D4D4D8;
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+}
+
+.result-data p {
+  margin: 0.8em 0;
+  line-height: 2;
+}
+
+.result-data ul,
+.result-data ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.result-data li {
+  margin: 0.5em 0;
+}
+
+.result-data ul li {
+  list-style-type: disc;
+}
+
+.result-data ol li {
+  list-style-type: decimal;
+}
+
+.result-data code {
+  background-color: #2a2c2e;
+  color: #a5fd0b;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+.result-data pre {
+  background-color: #1e1e1e;
+  border: 1px solid #3F3F46;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.result-data pre code {
+  background-color: transparent;
+  padding: 0;
+  color: #D4D4D8;
+}
+
+.result-data blockquote {
+  border-left: 4px solid #a5fd0b;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #A1A1AA;
+  font-style: italic;
+}
+
+.result-data a {
+  color: #a5fd0b;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.result-data a:hover {
+  color: #c5ff4b;
+}
+
+.result-data hr {
+  border: none;
+  border-top: 1px solid #3F3F46;
+  margin: 1.5em 0;
+}
+
+.result-data table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.result-data th,
+.result-data td {
+  border: 1px solid #3F3F46;
+  padding: 0.5em;
+  text-align: left;
+}
+
+.result-data th {
+  background-color: #2a2c2e;
+  font-weight: 600;
+}
+
 .prompt button {
   animation: lift 0.5s ease-in;
 }
